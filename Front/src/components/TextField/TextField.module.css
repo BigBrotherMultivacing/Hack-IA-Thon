@@ -1,0 +1,5 @@
+.field{display:grid;gap:6px;margin:12px 0}
+.label{font-size:.9rem;color:#dbe2ff}
+.input{padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(8,12,28,.65);color:white;outline:none}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(106,227,255,.2)}
+.err{color:var(--err);font-size:.9rem;margin-top:8px}

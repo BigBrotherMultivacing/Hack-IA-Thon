@@ -1,0 +1,2 @@
+.button{width:100%;padding:12px 14px;border-radius:10px;border:0;cursor:pointer;background:linear-gradient(90deg,var(--accent) 0%,var(--accent-2) 100%);color:#0a0f1c;font-weight:700;font-size:1rem;margin-top:10px}
+.button:disabled{opacity:.6;cursor:not-allowed}

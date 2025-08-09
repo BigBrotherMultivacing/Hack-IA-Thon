@@ -1,0 +1,11 @@
+.shell{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+.sidebar{background:rgba(8,12,28,.6);border-right:1px solid rgba(255,255,255,.08);padding:16px}
+.logo{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:conic-gradient(from 180deg,var(--accent),var(--accent-2));font-weight:800;color:#0a0f1c;margin-bottom:12px}
+.menu{display:grid;gap:8px}
+.menu a{color:#eaf1ff;text-decoration:none;font-size:.95rem;opacity:.9}
+.menu a:hover{opacity:1}
+.main{display:grid;grid-template-rows:auto 1fr}
+.header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(8,12,28,.35)}
+.content{padding:20px}
+.logout{padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:transparent;color:#eaf1ff;cursor:pointer}
+.logout:hover{border-color:var(--accent)}
