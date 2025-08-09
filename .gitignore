@@ -1,0 +1,5 @@
+/Front/node_modules
+
+/Back/Node/node_modules
+
+**/node_modules/
