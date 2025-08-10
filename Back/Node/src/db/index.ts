@@ -1,15 +1,21 @@
-// Importa Sequelize, el ORM que se usará para manejar la base de datos
 import { Sequelize } from 'sequelize';
+import { env } from '../config/env.js';
 
-// Crea una instancia de Sequelize usando SQLite como motor de base de datos
-export const sequelize = new Sequelize({
-  dialect: 'sqlite',       // Tipo de base de datos: SQLite
-  storage: './creencia.db',// Ruta del archivo físico de la base de datos
-  logging: false           // Desactiva logs SQL en consola
+export const sequelize = new Sequelize(env.DB.NAME, env.DB.USER, env.DB.PASSWORD, {
+  host: env.DB.HOST,
+  port: env.DB.PORT,
+  dialect: env.DB.DIALECT,
+  logging: false,
+  timezone: '-05:00', // ajusta si quieres UTC-5: '-05:00'
+  dialectOptions: {
+    // Para algunos RDS con SSL obligatorio. Si tienes CA, pásala aquí.
+    ssl: env.DB.SSL ? { require: true, rejectUnauthorized: false } : undefined
+  },
+  pool: { max: 10, min: 0, idle: 10000, acquire: 30000 }
 });
 
-// Función para conectar a la base y sincronizar modelos
 export async function connectDB() {
-  await sequelize.authenticate(); // Verifica la conexión con la base
-  await sequelize.sync();          // Crea tablas según modelos (en producción se recomiendan migraciones)
+  await sequelize.authenticate();
+  // En dev puedes usar alter; en prod, migraciones.
+  await sequelize.sync();
 }

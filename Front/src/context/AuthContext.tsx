@@ -11,7 +11,7 @@ interface AuthState {
 
 // Interfaz pública del contexto de autenticación
 interface AuthContextType extends AuthState {
-  signIn: (payload: LoginPayload, remember?: boolean) => Promise<void>; // Inicia sesión
+  signIn: (payload: LoginPayload, remember?: boolean) => Promise<boolean>; // Inicia sesión
   signOut: () => void;                                                  // Cierra sesión
 }
 
@@ -38,13 +38,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (payload: LoginPayload, remember = true) => {
     setState(s => ({ ...s, loading: true, error: null }));
     try {
-      const res = await apiLogin(payload); // POST /api/auth/login
-      if (remember) localStorage.setItem('creencia_token', res.token); // Guarda token si "Recordarme"
-      localStorage.setItem('creencia_user', JSON.stringify(res.user)); // Persistencia de usuario
+      const res = await apiLogin(payload);
+      if (remember) localStorage.setItem('creencia_token', res.token);
+      localStorage.setItem('creencia_user', JSON.stringify(res.user));
       setState({ user: res.user, token: res.token, loading: false, error: null });
+      return true;
     } catch (e: any) {
-      // Si falló, desactiva loading y guarda el mensaje de error
       setState(s => ({ ...s, loading: false, error: e?.message || 'Error de autenticación' }));
+      return false;
     }
   };
 
