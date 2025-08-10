@@ -1,5 +1,35 @@
-.field{display:grid;gap:6px;margin:12px 0}
-.label{font-size:.9rem;color:#dbe2ff}
-.input{padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(8,12,28,.65);color:white;outline:none}
-.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(106,227,255,.2)}
-.err{color:var(--err);font-size:.9rem;margin-top:8px}
+/* Contenedor del campo de texto + etiqueta + error */
+.field {
+  display: grid;               /* Diseño en cuadrícula */
+  gap: 6px;                    /* Espaciado vertical entre elementos */
+  margin: 12px 0;              /* Margen vertical */
+}
+
+/* Etiqueta del campo */
+.label {
+  font-size: .9rem;            /* Tamaño de fuente reducido */
+  color: #dbe2ff;              /* Color claro */
+}
+
+/* Estilo del input */
+.input {
+  padding: 12px 14px;          /* Relleno interno */
+  border-radius: 10px;         /* Bordes redondeados */
+  border: 1px solid rgba(255, 255, 255, .14); /* Borde tenue */
+  background: rgba(8, 12, 28, .65); /* Fondo semitransparente oscuro */
+  color: white;                /* Texto blanco */
+  outline: none;               /* Sin contorno por defecto */
+}
+
+/* Estilo al enfocar el input */
+.input:focus {
+  border-color: var(--accent); /* Cambia el color del borde */
+  box-shadow: 0 0 0 3px rgba(106, 227, 255, .2); /* Resalta con un halo */
+}
+
+/* Mensaje de error */
+.err {
+  color: var(--err);           /* Color de error (rojo) */
+  font-size: .9rem;            /* Tamaño reducido */
+  margin-top: 8px;             /* Separación superior */
+}

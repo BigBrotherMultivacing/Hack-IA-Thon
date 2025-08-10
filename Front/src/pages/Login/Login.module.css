@@ -1,7 +1,42 @@
-.hint{font-size:.82rem;color:var(--muted)}
-.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.link{color:var(--muted);text-decoration:none;font-size:.85rem}
-.link:hover{color:white}
-.checkbox{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:.9rem;color:#eaf1ff}
-.err{color:var(--err);font-size:.9rem;margin-top:8px}
-.badge{margin-top:14px;font-size:.8rem;color:var(--muted)}
+.hint {
+  font-size: .82rem;
+  color: var(--muted);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.link {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: .85rem;
+}
+
+.link:hover {
+  color: white;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: .9rem;
+  color: #eaf1ff;
+}
+
+.err {
+  color: var(--err);
+  font-size: .9rem;
+  margin-top: 8px;
+}
+
+.badge {
+  margin-top: 14px;
+  font-size: .8rem;
+  color: var(--muted);
+}

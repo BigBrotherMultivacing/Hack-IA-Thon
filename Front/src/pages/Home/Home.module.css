@@ -1,12 +1,14 @@
 .container {
-  min-height: 100dvh;   /* mejor que 100vh en móviles */
-  width: 100vw;          /* ocupa todo el ancho */
+  min-height: 100dvh;                    /* alto pantalla completo, mejor que vh en móviles */
+  width: 100vw;
   display: grid;
-  place-items: center;  /* centra vertical y horizontal */
+  place-items: center;                   /* centra contenido vertical/horizontal */
   padding: 2rem;
-  background: radial-gradient(1200px 600px at 10% 10%, #121734 0%, #0b1020 60%),
-              radial-gradient(900px 400px at 90% 0%, #0a132a 0%, transparent 60%);
+  background:
+    radial-gradient(1200px 600px at 10% 10%, #121734 0%, #0b1020 60%),
+    radial-gradient(900px 400px at 90% 0%, #0a132a 0%, transparent 60%);
 }
+
 .content {
   text-align: center;
   max-width: 500px;
@@ -15,15 +17,18 @@
   background: rgba(255,255,255,0.02);
   border: 1px solid rgba(255,255,255,0.08);
 }
+
 .title {
   font-size: 1.8rem;
   margin-top: 1rem;
 }
+
 .subtitle {
   color: var(--muted);
   font-size: 1rem;
   margin: 1rem 0 2rem;
 }
+
 .actions {
   margin-top: 1rem;
 }

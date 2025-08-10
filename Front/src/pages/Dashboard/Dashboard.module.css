@@ -1,2 +1,10 @@
-.card{padding:20px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(8,12,28,.45)}
-.muted{color:var(--muted)}
+.card {
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px;
+  background: rgba(8,12,28,.45);
+}
+
+.muted {
+  color: var(--muted);                   /* texto en tono tenue */
+}

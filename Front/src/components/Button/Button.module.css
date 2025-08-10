@@ -1,2 +1,23 @@
-.button{width:100%;padding:12px 14px;border-radius:10px;border:0;cursor:pointer;background:linear-gradient(90deg,var(--accent) 0%,var(--accent-2) 100%);color:#0a0f1c;font-weight:700;font-size:1rem;margin-top:10px}
-.button:disabled{opacity:.6;cursor:not-allowed}
+/* Estilo base del botón */
+.button {
+  width: 100%;                 /* Ocupa todo el ancho disponible */
+  padding: 12px 14px;          /* Relleno interno */
+  border-radius: 10px;         /* Bordes redondeados */
+  border: 0;                   /* Sin borde */
+  cursor: pointer;             /* Cursor de mano al pasar */
+  background: linear-gradient(
+    90deg,
+    var(--accent) 0%,
+    var(--accent-2) 100%
+  );                           /* Degradado lineal */
+  color: #0a0f1c;              /* Color del texto */
+  font-weight: 700;            /* Texto en negrita */
+  font-size: 1rem;             /* Tamaño de fuente */
+  margin-top: 10px;            /* Separación superior */
+}
+
+/* Estado deshabilitado */
+.button:disabled {
+  opacity: .6;                 /* Más transparente */
+  cursor: not-allowed;         /* Cursor de prohibido */
+}
