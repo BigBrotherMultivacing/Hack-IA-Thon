@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { env } from '../config/env.js';
+import { initModels } from '../models/index.js';
 
 export const sequelize = new Sequelize(env.DB.NAME, env.DB.USER, env.DB.PASSWORD, {
   host: env.DB.HOST,
@@ -16,6 +17,6 @@ export const sequelize = new Sequelize(env.DB.NAME, env.DB.USER, env.DB.PASSWORD
 
 export async function connectDB() {
   await sequelize.authenticate();
-  // En dev puedes usar alter; en prod, migraciones.
+  initModels(sequelize);
   await sequelize.sync();
 }
