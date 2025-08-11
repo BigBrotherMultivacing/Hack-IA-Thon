@@ -1,0 +1,11 @@
+.wrap{position:relative;height:54px;margin:50px;}
+.interactive{cursor:pointer; user-select:none}
+.line{position:absolute;top:26px;left:0;right:0;height:6px;background:rgba(255,255,255,.1);border-radius:6px;}
+.ticks{position:absolute;top:0;left:0;right:0;height:54px;margin-top:15px}
+.tick{position:absolute;top:22px;width:2px;height:12px;background:rgba(255,255,255,.25)}
+.tickLabel{position:absolute;top:28px;transform:translateX(-50%);font-size:.7rem;color:var(--muted)}
+.marker{position:absolute;top:10px;transform:translateX(-50%);display:grid;place-items:center;text-align:center}
+.dot{width:14px;height:14px;border-radius:50%;background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 0 0 3px rgba(106,227,255,.25)}
+.markerLabel{margin-top:18px;font-size:.85rem}
+.actual .dot{background:#6ae3ff}
+.sim .dot{background:#17c964}

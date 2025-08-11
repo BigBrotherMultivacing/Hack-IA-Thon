@@ -1,44 +1,61 @@
-.form{display:grid;gap:16px; max-width:75vw;width:100%;}
-
-/* Haz el grid fluido y envolvente */
+.form{display:grid;gap:16px;max-width:75vw;width:100%}
 .grid{
   display:grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap:12px;
 }
-
-/* Los hijos del grid deben poder encogerse */
 .card{
-  padding:16px;
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:14px;
-  background:rgba(8,12,28,.45);
+  padding:16px;border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;background:rgba(8,12,28,.45);min-width:0;
 }
 .label{display:block;margin:8px 0 6px}
-/* Inputs y textarea no deben empujar el layout */
+.subtle{color:var(--muted);font-size:.85rem;margin-bottom:6px}
 .textarea,
-input[type="text"],
-input[type="email"],
-input[type="url"],
-input[type="file"]{
-  max-width:100%;
-  width:100%;
-  min-width:0;
+input[type="text"], input[type="email"], input[type="url"], input[type="file"]{
+  max-width:100%; width:100%; min-width:0;
 }
 
-.file{display:block;margin-top:6px}
-.hint{color:var(--muted);font-size:.9rem;margin-top:6px}
-.actions{
-  display:flex;
-  gap:12px;
-  align-items:center;
-  justify-content:center;  /* ahora sí puede centrar */
-  max-width:720px;
-  width:100%;              /* crea espacio horizontal */
-  margin:0 auto;           /* centra el bloque de 720px dentro del grid */
-  /* opcional: justify-self:center;  // si ves que el grid lo deja a la izquierda */
+/* Ingresos/Egresos: subir + descargar */
+.ieRow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 12px 0}
+.uploadGhost{
+  display:inline-block;padding:10px 12px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.14);cursor:pointer;user-select:none; justify-content: center;
+  align-items: center;  width: 21vw;
 }
-.err{color:var(--err); align-items: center; text-align: center;}
+.uploadGhost:hover{border-color:var(--accent)}
+.download{margin-left:10px;color:var(--muted);text-decoration:none;font-size:0.75rem;}
+.download:hover{color:#fff}
+
+/* Balance */
+.fileRow{margin:10px 0 14px 0}
+
+/* Parámetros + Solicitud de crédito */
+.reqGrid{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-top:10px}
+.leftStack{display:grid;gap:8px;width: 10vw;}
+.paramBtn{
+  padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.14);
+  background:transparent;color:#eaf1ff;cursor:pointer;text-align:left
+}
+.paramBtn:hover{border-color:var(--accent)}
+.paramBtn em{font-style:normal;color:var(--muted);margin-left:6px}
+
+.bigUploadWrap{display:grid;align-items:stretch}
+.bigUpload{
+  display:grid;place-items:center;min-height:96px;border-radius:12px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  color:#0a0f1c;font-weight:800;cursor:pointer;
+  width: 10vw;
+  justify-content: center;
+  text-align: center;
+}
+
+.actions{
+  display:flex;gap:12px;align-items:center;justify-content:center;max-width:720px;
+  width:100%;margin:0 auto;
+}
+.err{color:var(--err);text-align:center}
+
 @media (max-width: 900px){
-  body { background-attachment: scroll, scroll, scroll; }
+  body{background-attachment:scroll,scroll,scroll}
+  .reqGrid{grid-template-columns:1fr}
 }

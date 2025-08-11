@@ -8,40 +8,51 @@ export type LoginResponse = {
 
 export type CompanyRef = { id: string; name: string; ruc?: string; sector?: string };
 
-export type DashboardData = {
-  company: CompanyRef & { became_large_year?: number };
-  scoring: {
-    score: number;                 // 0..900
-    risk: 'Bajo' | 'Medio' | 'Alto';
-    credit_limit: number;          // recomendado en USD
-    pd12: number;                  // prob. default 12m (0..1)
-  };
-  social: {
-    twitter: { sentiment: number; volume_30d: number; trend30: number[]; top_terms: string[] };
-    maps: { rating: number; reviews_count: number; trend30: number[]; samples: { author: string; rating: number; text: string; ts: string }[] };
-    combined_sentiment: number;    // 0..100
-  };
-  financials: {
-    years: number[];               // ej: [2018,2019,...]
-    revenue: number[];             // USD por año
-    ebitda_margin: number[];       // 0..1 por año
-    cash_flow: number[];           // USD por año
-    sector: string;
-    sector_benchmarks: {           // percentiles sectoriales
-      revenue_p50: number; revenue_p90: number; score_p50: number; score_p90: number;
-    };
-  };
-  explanation: { features: { name: string; value: number; contribution: number }[] };
-};
-
 export type NewApplicationPayload = {
   companyName: string;
   ruc?: string;
   sector?: string;
   contactEmail?: string;
-  twitterUrl?: string;      // o @handle
-  mapsUrl?: string;         // URL del lugar
-  references?: string;      // texto libre o CSV pegado
+
+  twitterHandle?: string;
+  instagramHandle?: string;
+  mapsUrl?: string;
+  mapsPlaceId?: string;
+
+  references?: string;
+
+  amount?: string;    // Cantidad solicitada
+  duration?: string;  // meses
+  purpose?: string;   // motivo
+};
+
+export type InstagramData = { score: number; engagement: number }; // engagement 0..1
+export type MapsTwitterData = {
+  negativo: { count: number; [k: string]: number };
+  positivo: { count: number; [k: string]: number };
+  neutral: number;
+  retroalimentacion: string;
+  score: number; // 0..100 o 1..5, te lo muestro como llega
+};
+export type PatrimonioData = { count: number; score: number }; // count = patrimonio (USD)
+export type FlujoData = { ingresos: number; egresos: number; score: number };
+
+export type DashboardDataV2Raw = {
+  instagram: InstagramData;
+  ['maps-twitter']: MapsTwitterData;
+  patrimonio: PatrimonioData;
+  balance: number;           // si el back lo usa para otra cosa, igual lo traigo
+  flujo: FlujoData;
+  score_total?: number;      // recomendado enviarlo desde el back
+};
+
+export type DashboardDataV2 = {
+  instagram: InstagramData;
+  mapsTwitter: MapsTwitterData;
+  patrimonio: PatrimonioData;
+  balance: number;
+  flujo: FlujoData;
+  score_total?: number;
 };
 
 export async function listCompanies(): Promise<CompanyRef[]> {
@@ -50,15 +61,34 @@ export async function listCompanies(): Promise<CompanyRef[]> {
   return res.json();
 }
 
-export async function getDashboard(companyId: string): Promise<DashboardData> {
-  const res = await fetch(`${API_URL}/api/dashboard/${companyId}`, { credentials: 'include', headers: { ...getAuthHeader() } });
-  if (!res.ok) throw new Error('No se pudo cargar el dashboard');
-  return res.json();
+function normalizeV2(raw: DashboardDataV2Raw): DashboardDataV2 {
+  // @ts-ignore acceso con guion
+  const mt = raw['maps-twitter'] as MapsTwitterData;
+  return {
+    instagram: raw.instagram,
+    mapsTwitter: mt,
+    patrimonio: raw.patrimonio,
+    balance: raw.balance,
+    flujo: raw.flujo,
+    score_total: raw.score_total
+  };
 }
 
-export async function simulate(companyId: string, delta: { revenuePct?: number; ontimePct?: number; rating?: number }): Promise<{ score: number; risk: 'Bajo'|'Medio'|'Alto'; credit_limit: number }> {
-  const res = await fetch(`${API_URL}/api/dashboard/${companyId}/simulate`, {
-    method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json', ...getAuthHeader() }, body: JSON.stringify(delta)
+export async function getDashboardByApplication(appId: string): Promise<DashboardDataV2> {
+  const res = await fetch(`${API_URL}/api/dashboard/by-application/${appId}`, {
+    credentials: 'include', headers: { ...getAuthHeader() }
+  });
+  if (!res.ok) throw new Error('No se pudo cargar el dashboard');
+  const raw = await res.json();
+  return normalizeV2(raw);
+}
+
+// opcional: si quieres reusar el simulador antiguo para “score total”, mantenlo
+export async function simulate(appId: string, body: any): Promise<any> {
+  const res = await fetch(`${API_URL}/api/dashboard/${appId}/simulate`, {
+    method: 'POST', credentials: 'include',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+    body: JSON.stringify(body)
   });
   if (!res.ok) throw new Error('No se pudo simular');
   return res.json();
@@ -107,11 +137,15 @@ async function safeErrorMessage(res: Response) {
   }
 }
 
-export async function createApplication(payload: NewApplicationPayload, files?: { statements?: File; extra?: File }): Promise<{ applicationId: string }>{
+export async function createApplication(
+  payload: NewApplicationPayload,
+  files?: { ie_form?: File; balance_form?: File; credit_request?: File }
+): Promise<{ applicationId: string }>{
   const fd = new FormData();
   Object.entries(payload).forEach(([k,v]) => { if (v != null && v !== '') fd.append(k, String(v)); });
-  if (files?.statements) fd.append('statements', files.statements);
-  if (files?.extra) fd.append('extra', files.extra);
+  if (files?.ie_form) fd.append('ie_form', files.ie_form);
+  if (files?.balance_form) fd.append('balance_form', files.balance_form);
+  if (files?.credit_request) fd.append('credit_request', files.credit_request);
 
   const res = await fetch(`${API_URL}/api/applications`, {
     method: 'POST', credentials: 'include', headers: { ...getAuthHeader() }, body: fd
@@ -120,15 +154,11 @@ export async function createApplication(payload: NewApplicationPayload, files?: 
   return res.json();
 }
 
+
 export async function getApplicationStatus(appId: string): Promise<{ status: 'queued'|'processing'|'done'|'error'; dashboardReady?: boolean }>{
   const res = await fetch(`${API_URL}/api/applications/${appId}/status`, { credentials: 'include', headers: { ...getAuthHeader() } });
   if (!res.ok) throw new Error('No se pudo consultar el estado');
   return res.json();
 }
 
-export async function getDashboardByApplication(appId: string): Promise<DashboardData> {
-  const res = await fetch(`${API_URL}/api/dashboard/by-application/${appId}`, { credentials: 'include', headers: { ...getAuthHeader() } });
-  if (!res.ok) throw new Error('No se pudo cargar el dashboard');
-  return res.json();
-}
 

@@ -1,0 +1,14 @@
+.wrap{position:relative;display:inline-block}
+.svg{display:block}
+.bg{fill:none;stroke:rgba(255,255,255,.08)}
+/* si tu stroke gradient no pinta, usa stroke: var(--accent) */
+.fg{fill:none;stroke:var(--accent)}
+
+.center{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px; /* más pegado valor + label */
+  text-align:center
+}
+.value{font-size:1.4rem;font-weight:800;line-height:1}
+.label{font-size:.8rem;color:var(--muted);line-height:1}

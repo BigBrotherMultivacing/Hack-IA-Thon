@@ -15,9 +15,6 @@
   box-sizing: border-box; /* Incluye padding/border en el cálculo de width/height */
 }
 
-html, body, #root {
-  height: 100vh; /* Altura completa para que el layout ocupe toda la pantalla */
-}
 
 body {
   background-color: #0b1020;

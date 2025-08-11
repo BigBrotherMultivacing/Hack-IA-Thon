@@ -1,30 +1,41 @@
-.grid{display:grid;gap:18px}
-.topbar{display:flex;justify-content:space-between;align-items:end;margin-bottom:12px}
-.companyMeta{display:flex;gap:10px;align-items:center}
-.badge{padding:4px 8px;border-radius:999px;background:rgba(106,227,255,.12);border:1px solid rgba(106,227,255,.35)}
-.placeholder{padding:20px;border:1px dashed rgba(255,255,255,.14);border-radius:12px;color:var(--muted)}
+.grid{display:grid;gap:16px}
+.row1{display:grid;grid-template-columns:1fr;gap:12px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.gaugeRow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .card{padding:16px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(8,12,28,.45)}
-.hint{color:var(--muted);font-size:.9rem}
-.big{font-size:2rem;font-weight:800}
-.row{display:flex;justify-content:space-between;align-items:center;margin:6px 0}
-.rowsm{display:flex;justify-content:space-between;align-items:center;margin:4px 0}
-.terms{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.term{padding:4px 8px;border-radius:999px;font-size:.8rem;background:rgba(255,255,255,.08)}
-.reviews{display:grid;gap:10px;margin-top:10px}
+.cardCenter{padding:28px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(8,12,28,.55);display:grid;place-items:center}
 
-.financials{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.explain{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.featureList{display:grid;gap:10px;margin-top:6px}
-.sliderLabel{display:block;margin-top:10px;color:#eaf1ff}
-.simOut{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-.muted{color:var(--muted)}
+.subTitle{color:var(--muted);font-size:.9rem;margin-top:2px;margin-bottom:10px}
+.kv{display:flex;justify-content:space-between;margin:20px 0}
+.huge{font-size:2rem;font-weight:900;text-align: center;align-items: center;justify-content: center;}
+.massive{font-size:3.2rem;font-weight:900}
+
+.igBlockCol{display:flex;flex-direction:column;align-items:center;gap:8px}
+.igMetaUnder{display:grid;gap:4px;min-width:240px}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{
+  padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);
+  background:transparent;color:#eaf1ff;cursor:pointer;font-size:.9rem
+}
+.chipActive{border-color:var(--accent);background:rgba(106,227,255,.15)}
+
+.ieGrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap:12px; align-items:end
+}
+.scoreRight{text-align:center;}
+.scoreRight span{color:var(--muted);font-size:.9rem;display:block}
 
 @media (max-width: 1100px){
-  .kpis{grid-template-columns:1fr}
-  .gaugeRow{grid-template-columns:1fr}
-  .financials{grid-template-columns:1fr 1fr}
-  .explain{grid-template-columns:1fr}
+  .row3{grid-template-columns:1fr}
+  .ieGrid{grid-template-columns:1fr;justify-items:stretch;text-align:left}
+  .scoreRight{justify-self:start;text-align:left}
+}
+
+.headerScoreRight{
+  display:flex;
+  align-items:flex-end;
+  gap:6px;              /* número y la palabra bien pegaditos */
 }
