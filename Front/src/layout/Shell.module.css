@@ -50,6 +50,7 @@
   padding: 16px 20px;
   border-bottom: 1px solid rgba(255,255,255,.08);
   background: rgba(8,12,28,.35);
+  width: 82vw;
 }
 
 .content {

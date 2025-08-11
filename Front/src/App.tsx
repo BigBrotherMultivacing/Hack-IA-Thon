@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home/Home';
 import Login from './pages/Login/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
+import NewApplication from './pages/Application/NewApplication';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import './styles/global.css';
@@ -23,14 +24,8 @@ const App: React.FC = () => {
           {/* Página de login */}
           <Route path="/login" element={<Login />} />
           {/* Página protegida - solo accesible si hay token */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/evaluate" element={<ProtectedRoute><NewApplication/></ProtectedRoute>} />
+          <Route path="/dashboard/:appId" element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

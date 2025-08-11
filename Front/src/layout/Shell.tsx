@@ -16,9 +16,9 @@ const Shell: React.FC<Props> = ({ title, subtitle, children }) => {
       <aside className={styles.sidebar}>
         <div className={styles.logo}>C</div>
         <nav className={styles.menu}>
-          <a href="#">Dashboard</a>
+          <a href="/dashboard/ultimo">Dashboard</a>
+          <a href="/evaluate">Nueva evaluación</a>
           <a href="#">Empresas</a>
-          <a href="#">Scoring</a>
         </nav>
       </aside>
 

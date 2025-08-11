@@ -32,8 +32,8 @@ body::before {
   pointer-events: none;
   z-index: -1;
   background:
-    radial-gradient(1200px 600px at 10% 10%, #121734 0%, #0b1020 60%),
-    radial-gradient(900px 400px at 90% 0%, #0a132a 0%, rgba(10,19,42,0) 60%);
+  radial-gradient(1200px 600px at 10% 10%, #121734 0%, #0b1020 60%),
+  radial-gradient(900px 400px at 90% 0%, #0a132a 0%, rgba(10,19,42,0) 60%);
   background-repeat: no-repeat;
 }
 

@@ -16,8 +16,8 @@ export default function Login(){
   const navigate = useNavigate();
   const { signIn, loading, error, token } = useAuth();
 
-  // si ya hay sesión, vete al dashboard
-  useEffect(() => { if (token) navigate('/dashboard', { replace: true }); }, [token, navigate]);
+  // si ya hay sesión, vete al evaluate
+  useEffect(() => { if (token) navigate('/evaluate', { replace: true }); }, [token, navigate]);
 
   const onSubmit: React.FormEventHandler = async e => {
     e.preventDefault();
@@ -28,7 +28,7 @@ export default function Login(){
     setFormErr(null);
 
     const ok = await signIn({ email, password }, remember);
-    if (ok) navigate('/dashboard', { replace: true });
+    if (ok) navigate('/evaluate', { replace: true });
   };
 
   return (

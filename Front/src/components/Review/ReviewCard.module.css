@@ -1,0 +1,5 @@
+.card{padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(8,12,28,.35)}
+.header{display:flex;justify-content:space-between;align-items:center}
+.star{color:#ffdc50}
+.text{margin:8px 0;color:#dbe2ff}
+.ts{color:var(--muted);font-size:.8rem}
