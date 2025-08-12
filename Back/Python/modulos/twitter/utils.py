@@ -98,8 +98,3 @@ def buscar_tweets(query, count=5, language="es", search_type="Latest"):
         print(f"Error procesando datos: {e}")
         return []
 
-# Ejemplo de uso
-if __name__ == "__main__":
-    resultados = buscar_tweets("Mr Beast", count=3)
-    for r in resultados:
-        print(f"{r['usuario']} ({r['fecha']}): {r['texto']}")
