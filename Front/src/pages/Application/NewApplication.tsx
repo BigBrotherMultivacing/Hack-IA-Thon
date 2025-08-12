@@ -1,17 +1,41 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Shell from '../../layout/Shell';
 import TextField from '../../components/TextField/TextField';
 import Button from '../../components/Button/Button';
 import styles from './NewApplication.module.css';
-import { createApplication } from '../../utils/api';
-import { useNavigate } from 'react-router-dom';
+
+// ===== util local =====
+const PY_API = (import.meta as any).env?.VITE_PY_API_URL || 'http://localhost:8000';
+
+function sanitizeHandle(v?: string){
+  return (v || '').trim().replace(/^@+/, '');
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onerror = () => reject(new Error('No se pudo leer el archivo'));
+    r.onload = () => {
+      const s = String(r.result || '');
+      const ix = s.indexOf('base64,');
+      resolve(ix >= 0 ? s.slice(ix + 7) : s);
+    };
+    r.readAsDataURL(file);
+  });
+}
 
 export default function NewApplication(){
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  // Datos empresa
+  // Estado del proceso Python
+  const [ticket, setTicket] = useState<string | null>(null);
+  const [procStatus, setProcStatus] = useState<'idle'|'processing'|'done'|'error'>('idle');
+  const [result, setResult] = useState<any>(null);
+
+  // Datos empresa (no los usa Python, pero no estorban)
   const companyNameRef = useRef<HTMLInputElement>(null);
   const rucRef = useRef<HTMLInputElement>(null);
   const sectorRef = useRef<HTMLInputElement>(null);
@@ -20,14 +44,13 @@ export default function NewApplication(){
   // Señales digitales
   const twitterHandleRef = useRef<HTMLInputElement>(null);
   const instagramRef = useRef<HTMLInputElement>(null);
-  const mapsUrlRef = useRef<HTMLInputElement>(null);
+  const mapsUrlRef = useRef<HTMLInputElement>(null);  // informativo
   const placeIdRef = useRef<HTMLInputElement>(null);
-  const referencesRef = useRef<HTMLTextAreaElement>(null);
 
   // Archivos
-  const ieFormRef = useRef<HTMLInputElement>(null);       // ingresos/egresos
-  const balanceFormRef = useRef<HTMLInputElement>(null);  // balance
-  const creditReqRef = useRef<HTMLInputElement>(null);    // solicitud de crédito
+  const ieFormRef = useRef<HTMLInputElement>(null);       // no lo usa Python
+  const balanceFormRef = useRef<HTMLInputElement>(null);  // Excel -> balance
+  const creditReqRef = useRef<HTMLInputElement>(null);    // PDF -> historico
 
   // Parámetros de la solicitud
   const [amount, setAmount] = useState<string | null>(null);
@@ -50,39 +73,90 @@ export default function NewApplication(){
   const onSubmit: React.FormEventHandler = async e => {
     e.preventDefault();
     setErr(null); setLoading(true);
+    setTicket(null); setProcStatus('idle'); setResult(null);
+
     try {
+      // Validaciones mínimas
+      const companyName = companyNameRef.current?.value?.trim() || '';
+      if (!companyName) throw new Error('Nombre de empresa es requerido');
+
+      const balanceFile = balanceFormRef.current?.files?.[0];
+      const historicoPDF = creditReqRef.current?.files?.[0];
+      if (!balanceFile) throw new Error('Falta subir el Balance (Excel .xlsx/.xls)');
+      if (!historicoPDF) throw new Error('Falta subir la Solicitud/Histórico (PDF)');
+
+      if (!/\.(xlsx|xls)$/i.test(balanceFile.name)) throw new Error('El Balance debe ser .xlsx o .xls');
+      if (!/\.pdf$/i.test(historicoPDF.name)) throw new Error('El Histórico debe ser .pdf');
+
+      const balanceB64  = await fileToBase64(balanceFile);
+      const historicoB64 = await fileToBase64(historicoPDF);
+
+      const cantidad = Number(amount || 0);
+      const duracion = Number(duration || 0);
+
       const payload = {
-        companyName: companyNameRef.current?.value?.trim() || '',
-        ruc: rucRef.current?.value?.trim() || undefined,
-        sector: sectorRef.current?.value?.trim() || undefined,
-        contactEmail: emailRef.current?.value?.trim() || undefined,
-
-        twitterHandle: twitterHandleRef.current?.value?.trim() || undefined,
-        instagramHandle: instagramRef.current?.value?.trim() || undefined,
-        mapsUrl: mapsUrlRef.current?.value?.trim() || undefined,
-        mapsPlaceId: placeIdRef.current?.value?.trim() || undefined,
-
-        references: referencesRef.current?.value?.trim() || undefined,
-
-        amount: amount ?? undefined,
-        duration: duration ?? undefined,
-        purpose: purpose ?? undefined
+        historico: historicoB64,
+        balance: balanceB64,
+        cantidad,
+        duracion,
+        motivo: String(purpose || ''),
+        twitterUsername: sanitizeHandle(twitterHandleRef.current?.value),
+        instagramUsername: String(instagramRef.current?.value || ''),
+        placeID: String(placeIdRef.current?.value || '')
       };
 
-      if (!payload.companyName) throw new Error('Nombre de empresa es requerido');
-
-      const files = {
-        ie_form: ieFormRef.current?.files?.[0],
-        balance_form: balanceFormRef.current?.files?.[0],
-        credit_request: creditReqRef.current?.files?.[0],
-      };
-
-      const { applicationId } = await createApplication(payload, files);
-      navigate(`/dashboard/${applicationId}`);
+      // POST directo al FastAPI
+      const res = await fetch(`${PY_API}/iniciar-proceso`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`Error al iniciar proceso (${res.status})`);
+      const out = await res.json();
+      const t = out?.ticket as string | undefined;
+      if (!t) throw new Error('El backend no devolvió ticket');
+      setTicket(t);
+      setProcStatus('processing');
     } catch (e: any) {
       setErr(e?.message || 'No se pudo enviar la solicitud');
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Polling de estado cada 4s cuando hay ticket
+   useEffect(() => {
+    if (procStatus !== 'processing' || !ticket) return;
+    let active = true;
+    const iv = setInterval(async () => {
+      try {
+        const r = await fetch(`${PY_API}/estado-proceso/${encodeURIComponent(ticket)}`);
+        if (!active) return;
+        if (r.ok) {
+          const data = await r.json();
+          const st = String(data.estatus || '').toLowerCase();
+          if (st && st !== 'processing' && st !== 'pendiente') {
+            // listo: guardamos y navegamos con los datos
+            setProcStatus('done');
+            setResult(data.result ?? null);
+            clearInterval(iv);
+
+            // opcional: persistir por si recargan
+            // sessionStorage.setItem('last_dashboard_data', JSON.stringify(data.result ?? {}));
+
+            // 👇 navega al dashboard con el payload de Python
+            navigate(`/dashboard/${ticket}`, {
+              replace: true,
+              state: { data: data.result ?? null }
+            });
+          }
+        }
+      } catch {
+        // meh, reintenta en el próximo tick
+      }
+    }, 4000);
+    return () => { active = false; clearInterval(iv); };
+  }, [procStatus, ticket, navigate]);
 
   return (
     <Shell title="Nueva evaluación" subtitle="Carga la información mínima para iniciar el scoring">
@@ -107,7 +181,7 @@ export default function NewApplication(){
             <TextField ref={placeIdRef} label="Place ID (Google Maps)" placeholder="ChIJN1t_tDeuEmsRUsoyG83frY4" />
             <a
               className={styles.helpLink}
-              href="https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder"
+              href="https://maps.app.goo.gl/xtntp8ETd1x7Er4E6"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -124,12 +198,18 @@ export default function NewApplication(){
               <div>
                 <div className={styles.label}>Ingresos y egresos</div>
                 <label className={styles.uploadGhost}>
-                  <input ref={ieFormRef} type="file" accept=".xlsx,.xls,.csv,.pdf" hidden />
+                  <input
+                    ref={ieFormRef}
+                    type="file"
+                    accept=".xlsx,.xls,.csv,.pdf,.xltx"
+                    hidden
+                  />
                   Subir formato I/E
                 </label>
-                <a className={styles.download} href="/forms/ingresos-egresos.xlsx" download>
-                  Descargar formato
+                <a className={styles.download} href="/forms/ingresos-egresos.xltx" download>
+                  Descargar plantilla (XLTX)
                 </a>
+                <div className={styles.subtle}>Descarga la plantilla, complétala y luego súbela como .xlsx/.xls.</div>
               </div>
             </div>
 
@@ -137,11 +217,10 @@ export default function NewApplication(){
             <div className={styles.fileRow}>
               <div className={styles.label}>Balance general</div>
               <label className={styles.uploadGhost}>
-                <input ref={balanceFormRef} type="file" accept=".pdf,.xlsx,.xls" hidden />
+                <input ref={balanceFormRef} type="file" accept=".xlsx,.pdf" hidden />
                 Subir balance
-              <div className={styles.subtle}>Con formato de la SuperCias</div>
-
               </label>
+              <div className={styles.subtle}>Con formato de la SuperCias</div>
             </div>
 
             {/* Parámetros + Solicitud de crédito */}
@@ -160,8 +239,8 @@ export default function NewApplication(){
 
               <div className={styles.bigUploadWrap}>
                 <label className={styles.bigUpload}>
-                  <input ref={creditReqRef} type="file" accept=".pdf,.doc,.docx" hidden />
-                  Subir solicitud de crédito
+                  <input ref={creditReqRef} type="file" accept=".pdf" hidden />
+                  Subir solicitud de crédito (PDF)
                 </label>
               </div>
             </div>
@@ -173,6 +252,18 @@ export default function NewApplication(){
         </div>
         {err ? <div className={styles.err}>{err}</div> : null}
       </form>
+
+      {/* Estado del proceso Python */}
+      {ticket ? (
+        <div className={styles.procBox}>
+          <div className={styles.procRow}><span>Ticket</span><code>{ticket}</code></div>
+          <div className={styles.procRow}><span>Estado</span><b>{procStatus === 'processing' ? 'Procesando…' : procStatus}</b></div>
+          {procStatus === 'processing' ? <div className={styles.hint}>Consultando estado cada 4s…</div> : null}
+          {procStatus === 'done' && result ? (
+            <pre className={styles.resultPreview}>{JSON.stringify(result, null, 2)}</pre>
+          ) : null}
+        </div>
+      ) : null}
     </Shell>
   );
 }

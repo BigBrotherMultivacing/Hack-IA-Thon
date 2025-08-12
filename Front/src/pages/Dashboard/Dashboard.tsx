@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Shell from '../../layout/Shell';
 import Donut from '../../components/Donut/Donut';
@@ -47,18 +47,26 @@ function getMock(): DashboardDataV2 {
 export default function Dashboard(){
   const { user } = useAuth();
   const { appId } = useParams();
+  const location = useLocation();
+  const passedData = (location.state as any)?.data as DashboardDataV2 | undefined;
+
   const [data, setData] = useState<DashboardDataV2 | null>(null);
   const [loading, setLoading] = useState(false);
   const [factor, setFactor] = useState(1);
 
   useEffect(() => {
+    // Si nos pasaron data desde NewApplication, úsala sin fetch
+    if (passedData) { setData(passedData); return; }
+
     if (!appId) return;
-    // DEMO
     if (appId === 'demo') { setData(getMock()); return; }
-    // Real
+
     setLoading(true);
-    (async () => { try { setData(await getDashboardByApplication(appId)); } finally { setLoading(false); } })();
-  }, [appId]);
+    (async () => {
+      try { setData(await getDashboardByApplication(appId)); }
+      finally { setLoading(false); }
+    })();
+  }, [appId, passedData]);
 
   const patrimonioSim = useMemo(() => {
     if (!data) return { value: 0, score: 0 };
