@@ -14,7 +14,7 @@ RAPID_API_KEY = os.getenv("RAPID_API_KEY")
 if not RAPID_API_KEY:
     raise ValueError("No se encontró la clave RAPID_API_KEY en las variables de entorno")
 
-def obtener_engagement_instagram(username_or_url):
+async def obtener_engagement_instagram(username_or_url):
     """
     Realiza una petición GET a la API de Instagram Social API vía RapidAPI para obtener los posts 
     públicos del usuario o URL especificado.
@@ -63,7 +63,7 @@ def obtener_engagement_instagram(username_or_url):
 
 
 
-def obtener_seguidores(username: str) -> int:
+async def obtener_seguidores(username: str) -> int:
     """
     Realiza una solicitud GET a la API de Instagram Social API para obtener la cantidad total 
     de seguidores de un usuario especificado por su nombre de usuario.
@@ -103,15 +103,17 @@ def obtener_seguidores(username: str) -> int:
     return seguidores
 
 
-def obtener_engagement_promedio(username: str) -> float:
+async def obtener_engagement_promedio(username: str) -> float:
     """
     Obtiene el engagement promedio de un usuario, tomando en cuenta cada post.
 
     :param username: Usuario de instagram, también puede ser url
     :return: Engagement promedio por post
     """
-    engagement_raw = obtener_engagement_instagram(username)
-    cantidad_seguidores = int(obtener_seguidores(username))
+    engagement_raw = await obtener_engagement_instagram(username)
+
+    cantidad_seguidores = await obtener_seguidores(username)
+    cantidad_seguidores = int(cantidad_seguidores)
 
 
     if cantidad_seguidores == 0 or not engagement_raw:
@@ -122,4 +124,14 @@ def obtener_engagement_promedio(username: str) -> float:
     
     return engagement_promedio_normalizado
 
-print(obtener_engagement_promedio("dash_jkm"))
+#print(obtener_engagement_promedio("elarbolitodeli"))
+
+async def score_interpolacion(engagement_rate: float, ideal: float = 0.014) -> float:
+    if engagement_rate < 0:
+        return 0
+    ratio = engagement_rate / ideal
+    if ratio >= 1:
+        return 5
+    else:
+        return ratio * 5
+

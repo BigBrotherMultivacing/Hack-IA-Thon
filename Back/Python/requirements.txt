@@ -7,3 +7,5 @@ openai-agents
 re
 collections
 dotenv  
+PyPDF2
+pandas

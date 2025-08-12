@@ -14,7 +14,7 @@ RAPID_API_KEY = os.getenv("RAPID_API_KEY")
 if not RAPID_API_KEY:
     raise ValueError("No se encontró la clave RAPID_API_KEY en el archivo .env")
 
-def obtener_reviews(place_id: str):
+async def obtener_reviews(place_id: str):
     global RAPID_API_KEY
     """
     Obtiene las reseñas de un negocio desde la API de RapidAPI usando su business_id (place_id).
@@ -46,7 +46,7 @@ def obtener_reviews(place_id: str):
         print(f"Error en la solicitud: {e}")
         return None
     
-def formatear_reviews(api_response):
+async def formatear_reviews(api_response):
     """
     Regresa la respuesta de la API de modo que cada elemento es una review:
 
@@ -84,25 +84,8 @@ def formatear_reviews(api_response):
 
     return reviews_list
 
-def obtener_reviews_formateadas(place_id):
-    responseAPI = obtener_reviews(place_id)
-    contenido = formatear_reviews(responseAPI)
+async def obtener_reviews_formateadas(place_id):
+    responseAPI = await obtener_reviews(place_id)
+    contenido = await formatear_reviews(responseAPI)
     return contenido
 
-#Código para obtener reviews y analizarlas en el clasificador de sentimientos
-#lista = obtener_reviews_formateadas("ChIJA-CS4I2a1ZER-b8jGs3iaXo")
-#textoFormated = ""
-#contador = 1
-#for i in range(0, 100):
-#    try:
-#        print(contador)
-#        review = lista[i]
-#        reviewText = review.get("review_text", None)
-#
-#        if reviewText != None and reviewText != "":
-#            textoFormated += f"\n{contador}. {reviewText}\n"
-#            contador += 1
-#    except Exception as e:
-#        print(f"algo fallo {e}")
-#
-#print(textoFormated)
